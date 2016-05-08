@@ -46,14 +46,14 @@ QWidget* EngineOptionDelegate::createEditor(QWidget* parent,
 
 			if (optionType == "combo")
 			{
-				QComboBox* editor = new QComboBox(parent);
+				auto  editor = new QComboBox(parent);
 				editor->addItems(map.value("choices").toStringList());
 
 				return editor;
 			}
 			else if (optionType == "spin")
 			{
-				QSpinBox* editor = new QSpinBox(parent);
+				auto  editor = new QSpinBox(parent);
 
 				bool ok;
 				int minValue = map.value("min").toInt(&ok);
@@ -68,18 +68,18 @@ QWidget* EngineOptionDelegate::createEditor(QWidget* parent,
 			}
 			else if (optionType == "text")
 			{
-				QLineEdit* editor = new QLineEdit(parent);
+				auto  editor = new QLineEdit(parent);
 				return editor;
 			}
 			else if (optionType == "file")
 			{
-				PathLineEdit* editor = new PathLineEdit(
+				auto  editor = new PathLineEdit(
 					PathLineEdit::FilePath, parent);
 				return editor;
 			}
 			else if (optionType == "folder")
 			{
-				PathLineEdit* editor = new PathLineEdit(
+				auto  editor = new PathLineEdit(
 					PathLineEdit::FolderPath, parent);
 				return editor;
 			}

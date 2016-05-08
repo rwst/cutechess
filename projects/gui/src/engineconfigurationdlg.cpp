@@ -59,7 +59,7 @@ EngineConfigurationDialog::EngineConfigurationDialog(
 	connect(m_engineOptionModel, SIGNAL(modelReset()),
 		this, SLOT(resizeColumns()));
 
-	EngineOptionDelegate* delegate = new EngineOptionDelegate(this);
+	auto  delegate = new EngineOptionDelegate(this);
 	ui->m_optionsView->setItemDelegate(delegate);
 	connect(ui->m_workingDirEdit, SIGNAL(textChanged(QString)),
 		delegate, SLOT(setEngineDirectory(QString)));

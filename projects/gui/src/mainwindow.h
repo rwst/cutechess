@@ -60,6 +60,8 @@ class MainWindow : public QMainWindow
 		void newTournament();
 		void manageEngines();
 		void saveLogToFile();
+		void onWindowMenuAboutToShow();
+		void showGameWindow();
 		void updateWindowTitle();
 		bool save();
 		bool saveAs();
@@ -73,12 +75,14 @@ class MainWindow : public QMainWindow
 		void editMoveComment(int ply, const QString& comment);
 		void copyFen();
 		void showAboutDialog();
+		void showPreviousTab();
+		void showNextTab();
 
 	private:
 		struct TabData
 		{
 			explicit TabData(ChessGame* game,
-					 Tournament* tournament = 0);
+					 Tournament* tournament = nullptr);
 
 			ChessGame* id;
 			QPointer<ChessGame> game;
@@ -126,6 +130,8 @@ class MainWindow : public QMainWindow
 		QAction* m_manageEnginesAct;
 		QAction* m_showGameDatabaseWindowAct;
 		QAction* m_showGameWallAct;
+		QAction* m_showPreviousTabAct;
+		QAction* m_showNextTabAct;
 		QAction* m_aboutAct;
 
 		PlainTextLog* m_engineDebugLog;

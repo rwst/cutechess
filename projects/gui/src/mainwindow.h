@@ -36,6 +36,7 @@ class ChessGame;
 class ChessPlayer;
 class PgnTagsModel;
 class Tournament;
+class GameTabBar;
 
 /**
  * MainWindow
@@ -59,7 +60,6 @@ class MainWindow : public QMainWindow
 		void newGame();
 		void newTournament();
 		void manageEngines();
-		void saveLogToFile();
 		void onWindowMenuAboutToShow();
 		void showGameWindow();
 		void updateWindowTitle();
@@ -75,8 +75,6 @@ class MainWindow : public QMainWindow
 		void editMoveComment(int ply, const QString& comment);
 		void copyFen();
 		void showAboutDialog();
-		void showPreviousTab();
-		void showNextTab();
 
 	private:
 		struct TabData
@@ -104,6 +102,7 @@ class MainWindow : public QMainWindow
 		void removeGame(int index);
 		int tabIndex(ChessGame* game) const;
 		int tabIndex(Tournament* tournament, bool freeTab = false) const;
+		void addDefaultWindowMenu();
 
 		QMenu* m_gameMenu;
 		QMenu* m_tournamentMenu;
@@ -112,7 +111,7 @@ class MainWindow : public QMainWindow
 		QMenu* m_windowMenu;
 		QMenu* m_helpMenu;
 
-		QTabBar* m_tabBar;
+		GameTabBar* m_tabBar;
 
 		GameViewer* m_gameViewer;
 		MoveList* m_moveList;

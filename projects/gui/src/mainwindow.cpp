@@ -22,7 +22,6 @@
 #include <QStatusBar>
 #include <QMenu>
 #include <QMenuBar>
-#include <QTabBar>
 #include <QToolBar>
 #include <QDockWidget>
 #include <QTreeView>
@@ -52,6 +51,7 @@
 #include "plaintextlog.h"
 #include "gamedatabasemanager.h"
 #include "pgntagsmodel.h"
+#include "gametabbar.h"
 
 #include <modeltest.h>
 
@@ -201,9 +201,6 @@ void MainWindow::createActions()
 	connect(m_showGameWallAct, SIGNAL(triggered()),
 		CuteChessApplication::instance(), SLOT(showGameWall()));
 
-	connect(m_showPreviousTabAct, SIGNAL(triggered()), this, SLOT(showPreviousTab()));
-	connect(m_showNextTabAct, SIGNAL(triggered()), this, SLOT(showNextTab()));
-
 	connect(m_aboutAct, SIGNAL(triggered()), this, SLOT(showAboutDialog()));
 }
 
@@ -230,11 +227,7 @@ void MainWindow::createMenus()
 	m_enginesMenu->addAction(m_manageEnginesAct);
 
 	m_windowMenu = menuBar()->addMenu(tr("&Window"));
-
-	// On OSX the menu is hidden if it's created
-	// empty. Add a dummy item so that the menu
-	// is always visible.
-	m_windowMenu->addAction(QString());
+	addDefaultWindowMenu();
 
 	connect(m_windowMenu, SIGNAL(aboutToShow()), this,
 		SLOT(onWindowMenuAboutToShow()));
@@ -245,19 +238,19 @@ void MainWindow::createMenus()
 
 void MainWindow::createToolBars()
 {
-	m_tabBar = new QTabBar();
+	m_tabBar = new GameTabBar();
 	m_tabBar->setDocumentMode(true);
 	m_tabBar->setTabsClosable(true);
 	m_tabBar->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-
-	#ifdef Q_OS_MAC
-	m_tabBar->setDrawBase(false);
-	#endif
 
 	connect(m_tabBar, SIGNAL(currentChanged(int)),
 		this, SLOT(onTabChanged(int)));
 	connect(m_tabBar, SIGNAL(tabCloseRequested(int)),
 		this, SLOT(onTabCloseRequested(int)));
+	connect(m_showPreviousTabAct, SIGNAL(triggered()),
+		m_tabBar, SLOT(showPreviousTab()));
+	connect(m_showNextTabAct, SIGNAL(triggered()),
+		m_tabBar, SLOT(showNextTab()));
 
 	QToolBar* toolBar = new QToolBar(tr("Game Tabs"));
 	toolBar->setVisible(false);
@@ -273,8 +266,6 @@ void MainWindow::createDockWindows()
 	// Engine debug
 	QDockWidget* engineDebugDock = new QDockWidget(tr("Engine Debug"), this);
 	m_engineDebugLog = new PlainTextLog(engineDebugDock);
-	connect(m_engineDebugLog, SIGNAL(saveLogToFileRequest()), this,
-		SLOT(saveLogToFile()));
 	engineDebugDock->setWidget(m_engineDebugLog);
 
 	addDockWidget(Qt::BottomDockWidgetArea, engineDebugDock);
@@ -631,76 +622,11 @@ void MainWindow::manageEngines()
 	}
 }
 
-void MainWindow::saveLogToFile()
-{
-	PlainTextLog* log = qobject_cast<PlainTextLog*>(QObject::sender());
-	Q_ASSERT(log != nullptr);
-
-	const QString fileName = QFileDialog::getSaveFileName(this, tr("Save Log"),
-		QString(), tr("Text Files (*.txt);;All Files (*.*)"));
-
-	if (fileName.isEmpty())
-		return;
-
-	QFile file(fileName);
-	if (!file.open(QFile::WriteOnly | QFile::Text))
-	{
-		QFileInfo fileInfo(file);
-
-		QMessageBox msgBox;
-		msgBox.setIcon(QMessageBox::Warning);
-		msgBox.setWindowTitle("Cute Chess");
-
-		switch (file.error())
-		{
-			case QFile::OpenError:
-			case QFile::PermissionsError:
-				msgBox.setText(
-					tr("The file \"%1\" could not be saved because "
-					   "of insufficient privileges.")
-					.arg(fileInfo.fileName()));
-
-				msgBox.setInformativeText(
-					tr("Try selecting a location where you have "
-					   "the permissions to create files."));
-			break;
-
-			case QFile::TimeOutError:
-				msgBox.setText(
-					tr("The file \"%1\" could not be saved because "
-					   "the operation timed out.")
-					.arg(fileInfo.fileName()));
-
-				msgBox.setInformativeText(
-					tr("Try saving the file to a local or another "
-					   "network disk."));
-			break;
-
-			default:
-				msgBox.setText(tr("The file \"%1\" could not be saved.")
-					.arg(fileInfo.fileName()));
-
-				msgBox.setInformativeText(file.errorString());
-			break;
-		}
-		msgBox.exec();
-
-		return;
-	}
-
-	QTextStream out(&file);
-	out << log->toPlainText();
-}
-
 void MainWindow::onWindowMenuAboutToShow()
 {
 	m_windowMenu->clear();
 
-	m_windowMenu->addAction(m_showGameWallAct);
-	m_windowMenu->addAction(m_showGameDatabaseWindowAct);
-	m_windowMenu->addSeparator();
-	m_windowMenu->addAction(m_showPreviousTabAct);
-	m_windowMenu->addAction(m_showNextTabAct);
+	addDefaultWindowMenu();
 	m_windowMenu->addSeparator();
 
 	const QList<MainWindow*> gameWindows =
@@ -895,24 +821,11 @@ bool MainWindow::askToSave()
 	return true;
 }
 
-void MainWindow::showNextTab()
+void MainWindow::addDefaultWindowMenu()
 {
-	if (m_tabBar->count() < 2)
-		return;
-
-	if (m_tabBar->currentIndex() == m_tabBar->count() - 1)
-		m_tabBar->setCurrentIndex(0);
-	else
-		m_tabBar->setCurrentIndex(m_tabBar->currentIndex() + 1);
-}
-
-void MainWindow::showPreviousTab()
-{
-	if (m_tabBar->count() < 2)
-		return;
-
-	if (m_tabBar->currentIndex() == 0)
-		m_tabBar->setCurrentIndex(m_tabBar->count() - 1);
-	else
-		m_tabBar->setCurrentIndex(m_tabBar->currentIndex() - 1);
+	m_windowMenu->addAction(m_showGameWallAct);
+	m_windowMenu->addAction(m_showGameDatabaseWindowAct);
+	m_windowMenu->addSeparator();
+	m_windowMenu->addAction(m_showPreviousTabAct);
+	m_windowMenu->addAction(m_showNextTabAct);
 }

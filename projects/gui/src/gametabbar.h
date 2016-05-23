@@ -15,39 +15,28 @@
     along with Cute Chess.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef PLAIN_TEXT_LOG_H
-#define PLAIN_TEXT_LOG_H
+#ifndef GAME_TAB_BAR_H
+#define GAME_TAB_BAR_H
 
-#include <QPlainTextEdit>
-
-class QContextMenuEvent;
-class QAction;
+#include <QTabBar>
 
 /*!
- * \brief Widget that is used to display log messages in plain text.
+ * \brief Provides a game tab bar for game windows.
  */
-class PlainTextLog : public QPlainTextEdit
+class GameTabBar : public QTabBar
 {
 	Q_OBJECT
 
 	public:
-		/*! Constructs a new plain text log with the given \a parent. */
-		PlainTextLog(QWidget* parent = nullptr);
-		/*!
-		 * Constructs a new plain text log with the initial text \a text and
-		 * given \a parent.
-		 */
-		PlainTextLog(const QString& text, QWidget* parent = nullptr);
+		GameTabBar(QWidget* parent = nullptr);
 
 	public slots:
-		/*! Save the log to file \a filename. */
-		void saveLogToFile(const QString& fileName);
-
-	protected:
-		// Inherited from QPlainTextEdit
-		virtual void contextMenuEvent(QContextMenuEvent* event);
+		/*! Show the next tab in the tab bar. */
+		void showNextTab();
+		/*! Show the previous tab in the tab bar. */
+		void showPreviousTab();
 
 };
 
-#endif // PLAIN_TEXT_LOG_H
+#endif // GAME_TAB_BAR_H
 
